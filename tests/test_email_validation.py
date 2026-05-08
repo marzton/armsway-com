@@ -1,4 +1,5 @@
 import os
+import re
 from playwright.sync_api import sync_playwright
 
 def test_html5_email_validation():
@@ -46,11 +47,11 @@ def test_form_submission_blocked_with_invalid_email():
                 nonlocal request_attempted
                 if route.request.url == target_url:
                     request_attempted = True
-                    route.abort()
+                    route.abort("blockedbyclient")
                 else:
                     route.continue_()
 
-            page.route(target_url, block_target)
+            page.route(re.compile(rf"^{re.escape(target_url)}$"), block_target)
 
             # Fill form with invalid email
             page.fill('input[name="name"]', 'Test User')

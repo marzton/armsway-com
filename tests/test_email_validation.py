@@ -44,7 +44,9 @@ def test_form_submission_blocked_with_invalid_email():
 
             def block_target(route, request=None):
                 nonlocal request_attempted
-                request_attempted = True
+                current_request = request or route.request
+                if current_request.url == target_url:
+                    request_attempted = True
                 route.abort()
 
             page.route(target_url, block_target)

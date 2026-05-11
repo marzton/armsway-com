@@ -22,13 +22,11 @@
     "not_found_handling": "single-page-application",
     "binding": "ASSETS"
   },
-  "d1_databases": [
-    {
-      "binding": "AUDIT_DB",
-      "database_name": "gs_audit_db",
-      "database_id": "<database_id>"
-    }
-  ],
+  // d1_databases binding is intentionally omitted from version control.
+  // To enable D1, add a local wrangler.local.jsonc (git-ignored) or pass
+  // --d1 AUDIT_DB=<database_id> when running wrangler deploy/dev.
+  // Example entry:
+  //   "d1_databases": [{ "binding": "AUDIT_DB", "database_name": "gs_audit_db", "database_id": "<your-uuid>" }]
   "send_email": [
     {
       "name": "SEND_EMAIL"

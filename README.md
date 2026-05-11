@@ -3,11 +3,11 @@
 ## Repo → Worker → Domain
 | App | CF Pages | Domain | Status |
 |-----|----------|--------|--------|
-| `dist/` | `armsway` Pages | `armsway.com`, `www.armsway.com` | ✅ Live |
+| `dist/` | `armsway-com` Pages | `armsway.com`, `www.armsway.com` | ✅ Live |
 
 ## Cloudflare Account
 - **Account:** Gold Shore Labs (`<account_id>`)
-- **Pages project:** `armsway`
+- **Pages project:** `armsway-com`
 
 ## Ownership
 Rob Marston · Gold Shore Labs — patent protected, selective access.

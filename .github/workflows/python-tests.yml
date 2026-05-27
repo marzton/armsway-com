@@ -29,7 +29,7 @@ jobs:
         run: |
           python3 -m http.server 8000 &
           SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
           sleep 5
           python3 tests/test_inquiry_form.py
           python3 tests/test_form_validation.py
-          kill $SERVER_PID

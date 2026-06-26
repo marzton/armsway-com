@@ -6,14 +6,14 @@ def test_inquiry_form_submission():
         context = browser.new_context()
         page = context.new_page()
 
-        # Target URL for form submission in the NEW public/index.html
-        target_url = "http://localhost:8000/api/contact"
+        # Target URL for form submission
+        target_url = "https://armsway.com-private.goldshore.workers.dev/inquiry"
 
         # Intercept the POST request and mock response
         page.route(target_url, lambda route: route.fulfill(
             status=200,
-            content_type="application/json",
-            body='{"ok": true}'
+            content_type="text/plain",
+            body="OK"
         ))
 
         # Navigate to the local server
@@ -35,11 +35,12 @@ def test_inquiry_form_submission():
 
         print(f"Post data: {post_data}")
 
-        # Form data is multipart/form-data from FormData
-        assert "Jane Doe" in post_data
-        assert "jane@example.com" in post_data
-        assert "General Hospital" in post_data
-        assert "Requesting a quote for 500 sleeves." in post_data
+        # Verify the data sent in the request
+        # Form data is likely multipart/form-data or application/x-www-form-urlencoded
+        assert "Jane+Doe" in post_data or "Jane Doe" in post_data
+        assert "jane%40example.com" in post_data or "jane@example.com" in post_data
+        assert "General+Hospital" in post_data or "General Hospital" in post_data
+        assert "Requesting+a+quote+for+500+sleeves." in post_data or "Requesting a quote for 500 sleeves." in post_data
 
         print("Test passed!")
         browser.close()

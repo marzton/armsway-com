@@ -54,6 +54,20 @@ npx wrangler login
 npx wrangler deploy
 ```
 
+3. In Cloudflare dashboard, confirm Worker routes:
+   - `armsway.com/*`
+   - `www.armsway.com/*`
+
+4. Ensure DNS in `armsway.com` zone:
+   - `@` proxied record for Worker/custom domain
+   - `www` proxied CNAME to `armsway.com`
+
+## Inquiry form target
+
+The quote form submits to:
+
+`https://armsway.com-private.goldshore.workers.dev/inquiry`
+
 > Note: this config intentionally omits a `main` Worker entrypoint for now; deploy is static assets from `dist/`.
 
 3. In Cloudflare dashboard, confirm Worker routes:

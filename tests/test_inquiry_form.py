@@ -23,6 +23,7 @@ def test_inquiry_form_submission():
         page.fill('input[name="name"]', 'Jane Doe')
         page.fill('input[name="email"]', 'jane@example.com')
         page.fill('input[name="company"]', 'General Hospital')
+        page.select_option('select[name="inquiry"]', 'strategy-call')
         page.fill('textarea[name="message"]', 'Requesting a quote for 500 sleeves.')
 
         # Expect a request to be sent when clicking submit

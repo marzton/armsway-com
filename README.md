@@ -3,11 +3,11 @@
 ## Repo → Worker → Domain
 | App | CF Pages | Domain | Status |
 |-----|----------|--------|--------|
-| `dist/` | `armsway` Pages | `armsway.com`, `www.armsway.com` | ✅ Live |
+| `dist/` | `armsway-com` Pages | `armsway.com`, `www.armsway.com` | ✅ Live |
 
 ## Cloudflare Account
-- **Account:** Gold Shore Labs (`f77de112d2019e5456a3198a8bb50bd2`)
-- **Pages project:** `armsway`
+- **Account:** Gold Shore Labs (`<account_id>`)
+- **Pages project:** `armsway-com`
 
 ## Ownership
 Rob Marston · Gold Shore Labs — patent protected, selective access.
@@ -53,6 +53,8 @@ npx wrangler login
 ```bash
 npx wrangler deploy
 ```
+
+> Note: this config intentionally omits a `main` Worker entrypoint for now; deploy is static assets from `dist/`.
 
 3. In Cloudflare dashboard, confirm Worker routes:
    - `armsway.com/*`

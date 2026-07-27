@@ -6,6 +6,11 @@ def test_form_validation():
         context = browser.new_context()
         page = context.new_page()
 
+        target_url = "https://armsway.com-private.goldshore.workers.dev/inquiry"
+        page.route(target_url, lambda route: route.fulfill(
+            status=200,
+            content_type="text/plain",
+            body="OK"
         target_url = "http://localhost:8000/api/contact"
         page.route(target_url, lambda route: route.fulfill(
             status=200,
@@ -15,6 +20,12 @@ def test_form_validation():
 
         page.goto("http://localhost:8000/index.html")
 
+        # 1. Test Missing Name
+        # Fill email and message, leave name empty
+        page.fill('input[name="email"]', 'test@example.com')
+        page.fill('textarea[name="message"]', 'Test message')
+
+        # Try to submit and ensure no request is sent
         # Remove novalidate to test browser validation
         page.eval_on_selector('form', 'el => el.removeAttribute("novalidate")')
 
@@ -29,6 +40,11 @@ def test_form_validation():
                 request_sent = True
 
         page.on("request", handle_request)
+        page.click('button[type="submit"]')
+        page.wait_for_timeout(500) # Wait a bit to ensure no request is sent
+        assert not request_sent, "Request sent even though Name is missing"
+
+        # Verify name input is invalid
 
         page.click('button[type="submit"]')
         page.wait_for_timeout(500)
@@ -39,6 +55,8 @@ def test_form_validation():
 
         # 2. Test Missing Email
         page.reload()
+        page.fill('input[name="name"]', 'Test User')
+        page.fill('textarea[name="message"]', 'Test message')
         page.eval_on_selector('form', 'el => el.removeAttribute("novalidate")')
         page.fill('input[name="name"]', 'Test User')
         page.fill('textarea[name="message"]', 'Test message and it is more than 20 characters long.')
@@ -51,6 +69,9 @@ def test_form_validation():
 
         # 3. Test Invalid Email Format
         page.reload()
+        page.fill('input[name="name"]', 'Test User')
+        page.fill('input[name="email"]', 'invalid-email')
+        page.fill('textarea[name="message"]', 'Test message')
         page.eval_on_selector('form', 'el => el.removeAttribute("novalidate")')
         page.fill('input[name="name"]', 'Test User')
         page.fill('input[name="email"]', 'invalid-email')
@@ -74,6 +95,11 @@ def test_form_validation():
         is_valid = page.eval_on_selector('textarea[name="message"]', 'el => el.checkValidity()')
         assert not is_valid, "Message textarea should be invalid"
 
+        # 5. Test All Valid (Sanity Check)
+        page.reload()
+        page.fill('input[name="name"]', 'Test User')
+        page.fill('input[name="email"]', 'test@example.com')
+        page.fill('textarea[name="message"]', 'Test message')
         # 5. Test Short Message
         page.reload()
         page.eval_on_selector('form', 'el => el.removeAttribute("novalidate")')

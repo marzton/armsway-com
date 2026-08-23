@@ -20,7 +20,9 @@ Configure in **Workers & Pages → armsway-com → Settings → Triggers**:
 - `armsway.com/*`
 - `www.armsway.com/*`
 
-These routes are also declared in `wrangler.jsonc` so `npx wrangler deploy` keeps config in source control.
+## Email Routing
+
+Incoming mail to `*@armsway.com` should be routed to the `armsway-com` Worker in **Email → Email Routing → Routes**.
 
 ## Post-deploy checks
 

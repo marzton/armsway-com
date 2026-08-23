@@ -6,7 +6,7 @@ Use this file as the single source of truth for production routing.
 
 | Type | Name | Target | Proxy |
 |---|---|---|---|
-| CNAME | `@` | `armsway-com.<account>.workers.dev` (or Worker custom domain target) | Proxied |
+| CNAME | `@` | `armsway-com.goldshore.workers.dev` (or Worker custom domain target) | Proxied |
 | CNAME | `www` | `armsway.com` | Proxied |
 | MX | `@` | `route1.mx.cloudflare.net` (Priority 10) | N/A |
 | MX | `@` | `route2.mx.cloudflare.net` (Priority 20) | N/A |

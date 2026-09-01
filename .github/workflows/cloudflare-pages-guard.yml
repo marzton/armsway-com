@@ -45,6 +45,7 @@ jobs:
           cfg = json.load(open('ops/cloudflare-pages-required.json', 'r', encoding='utf-8'))
           account = os.environ['CLOUDFLARE_ACCOUNT_ID']
           script = cfg['project_name']
+
           # Check Worker routes via supported zone-scoped endpoint, then filter by script
           zones = cf_get(f"https://api.cloudflare.com/client/v4/zones?account.id={account}&per_page=50")
           patterns = set()

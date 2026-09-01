@@ -1,7 +1,7 @@
 {
-  "name": "armsway-com",
+  "name": "armsway",
   "main": "src/index.ts",
-  "compatibility_date": "2025-03-07",
+  "compatibility_date": "2026-08-23",
   "compatibility_flags": [
     "nodejs_compat"
   ],
@@ -17,7 +17,7 @@
   "kv_namespaces": [
     {
       "binding": "CACHE_KV",
-      "id": "f77de112d2019e5456a3198a8bb50bd2"
+      "id": "ef85567a77364f87809047ac1aff950c"
     }
   ],
   "queues": {
@@ -35,15 +35,10 @@
       }
     ]
   },
-  "services": [
-    {
-      "binding": "UTILS_SERVICE",
-      "service": "goldshore-utils"
-    }
-  ],
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
   },
   "d1_databases": [
     {

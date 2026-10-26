@@ -40,6 +40,10 @@ export default {
 			const inquiry = message.body;
 			console.log(`Processing queued inquiry: ${inquiry.dedupeKey}`);
 
+			if (!env.SEND_EMAIL) {
+				message.retry();
+				continue;
+			}
 			if (env.SEND_EMAIL) {
 				const emailBody = `
 New Inquiry from ${inquiry.name} (${inquiry.email})
@@ -54,10 +58,11 @@ Message: ${inquiry.message}
 					const from = 'no-reply@armsway.com';
 					const to = env.CONTACT_TO_EMAIL || 'rob@armsway.com';
 					const subject = `New ArmsWay Inquiry: ${inquiry.name}`;
+					const encodedSubject = btoa(Array.from(new TextEncoder().encode(subject), byte => String.fromCharCode(byte)).join(''));
 					const rawMessage = [
 						`From: ${from}`,
 						`To: ${to}`,
-						`Subject: ${subject}`,
+						`Subject: =?UTF-8?B?${encodedSubject}?=`,
 						'MIME-Version: 1.0',
 						'Content-Type: text/plain; charset=UTF-8',
 						'',
@@ -67,7 +72,7 @@ Message: ${inquiry.message}
 					const msg = new EmailMessage(from, to, rawMessage);
 					await env.SEND_EMAIL.send(msg);
 				} catch (e) {
-					console.error('Queue email send failed, retrying message:', e);
+					console.error('Queue email send failed; retrying inquiry');
 					message.retry();
 				}
 			}
@@ -76,7 +81,7 @@ Message: ${inquiry.message}
 };
 
 async function handleContactForm(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-  if (!env.AUDIT_DB || !env.INQUIRY_QUEUE) return Response.json({ok:false,error:{message:'Online intake is temporarily unavailable. Email rob@armsway.com directly.'}},{status:503});
+  if (!env.AUDIT_DB || !env.INQUIRY_QUEUE || !env.SEND_EMAIL) return Response.json({ok:false,error:{message:'Online intake is temporarily unavailable. Email rob@armsway.com directly.'}},{status:503});
 
 	try {
 		const formData = await request.formData();
@@ -120,3 +125,4 @@ async function handleContactForm(request: Request, env: Env, ctx: ExecutionConte
 		});
 	}
 }
+

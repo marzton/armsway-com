@@ -5,7 +5,6 @@ export interface Env {
 	};
 	CACHE_KV: KVNamespace;
 	INQUIRY_QUEUE: Queue;
-	UTILS_SERVICE: Fetcher;
 	CONTACT_TO_EMAIL: string;
 	ENV: string;
 	ASSETS: {
@@ -16,10 +15,11 @@ export interface Env {
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
+    if (url.pathname === '/health') return Response.json({service:'armsway-com',ok:Boolean(env.ASSETS),inquiries:env.INQUIRY_QUEUE ? 'available' : 'unavailable'});
 
-		// Basic KV cache for assets or public info if needed
+
 		if (url.pathname === '/api/info') {
-			const cached = await env.CACHE_KV.get('site_info');
+			const cached = await env.CACHE_KV?.get('site_info');
 			if (cached) return new Response(cached, { headers: { 'Content-Type': 'application/json' } });
 		}
 
@@ -27,12 +27,12 @@ export default {
 			return await handleContactForm(request, env, ctx);
 		}
 
+		if (url.pathname.startsWith('/api/')) return Response.json({error:'Not found'}, {status:404});
 		return env.ASSETS.fetch(request);
 	},
 
 	async email(message: any, env: Env, ctx: ExecutionContext): Promise<void> {
 		console.log(`Received email from ${message.from} to ${message.to}`);
-		// Forward or process incoming emails to armsway.com
 	},
 
 	async queue(batch: MessageBatch<any>, env: Env, ctx: ExecutionContext): Promise<void> {
@@ -40,7 +40,10 @@ export default {
 			const inquiry = message.body;
 			console.log(`Processing queued inquiry: ${inquiry.dedupeKey}`);
 
-			// Actual email sending logic offloaded to queue
+			if (!env.SEND_EMAIL) {
+				message.retry();
+				continue;
+			}
 			if (env.SEND_EMAIL) {
 				const emailBody = `
 New Inquiry from ${inquiry.name} (${inquiry.email})
@@ -55,10 +58,11 @@ Message: ${inquiry.message}
 					const from = 'no-reply@armsway.com';
 					const to = env.CONTACT_TO_EMAIL || 'rob@armsway.com';
 					const subject = `New ArmsWay Inquiry: ${inquiry.name}`;
+					const encodedSubject = btoa(Array.from(new TextEncoder().encode(subject), byte => String.fromCharCode(byte)).join(''));
 					const rawMessage = [
 						`From: ${from}`,
 						`To: ${to}`,
-						`Subject: ${subject}`,
+						`Subject: =?UTF-8?B?${encodedSubject}?=`,
 						'MIME-Version: 1.0',
 						'Content-Type: text/plain; charset=UTF-8',
 						'',
@@ -68,7 +72,7 @@ Message: ${inquiry.message}
 					const msg = new EmailMessage(from, to, rawMessage);
 					await env.SEND_EMAIL.send(msg);
 				} catch (e) {
-					console.error('Queue email send failed, retrying message:', e);
+					console.error('Queue email send failed; retrying inquiry');
 					message.retry();
 				}
 			}
@@ -77,6 +81,8 @@ Message: ${inquiry.message}
 };
 
 async function handleContactForm(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  if (!env.AUDIT_DB || !env.INQUIRY_QUEUE || !env.SEND_EMAIL) return Response.json({ok:false,error:{message:'Online intake is temporarily unavailable. Email rob@armsway.com directly.'}},{status:503});
+
 	try {
 		const formData = await request.formData();
 		const inquiryData = {
@@ -91,7 +97,6 @@ async function handleContactForm(request: Request, env: Env, ctx: ExecutionConte
 			created_at: Date.now()
 		};
 
-		// 1. Audit to D1
 		if (env.AUDIT_DB) {
 			await env.AUDIT_DB.prepare(
 				'INSERT INTO inquiries (name, email, company, role, inquiry, message, form_type, dedupe_key, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
@@ -100,17 +105,8 @@ async function handleContactForm(request: Request, env: Env, ctx: ExecutionConte
 				.run();
 		}
 
-		// 2. Offload to Queue for asynchronous email processing
 		if (env.INQUIRY_QUEUE) {
 			await env.INQUIRY_QUEUE.send(inquiryData);
-		}
-
-		// 3. Optional call to Utils Service
-		if (env.UTILS_SERVICE) {
-			ctx.waitUntil(env.UTILS_SERVICE.fetch('https://utils.goldshore.ai/log-event', {
-				method: 'POST',
-				body: JSON.stringify({ event: 'inquiry_received', key: inquiryData.dedupeKey })
-			}));
 		}
 
 		return new Response(JSON.stringify({ ok: true }), {
@@ -129,3 +125,4 @@ async function handleContactForm(request: Request, env: Env, ctx: ExecutionConte
 		});
 	}
 }
+

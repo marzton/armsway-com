@@ -1,7 +1,7 @@
 {
   "name": "armsway-com",
   "main": "src/index.ts",
-  "compatibility_date": "2025-03-07",
+  "compatibility_date": "2026-08-23",
   "compatibility_flags": [
     "nodejs_compat"
   ],
@@ -17,35 +17,16 @@
   "kv_namespaces": [
     {
       "binding": "CACHE_KV",
-      "id": "f77de112d2019e5456a3198a8bb50bd2"
-    }
-  ],
-  "queues": {
-    "producers": [
-      {
-        "binding": "INQUIRY_QUEUE",
-        "queue": "armsway-inquiry-queue"
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "armsway-inquiry-queue",
-        "max_batch_size": 10,
-        "max_batch_timeout": 30
-      }
-    ]
-  },
-  "services": [
-    {
-      "binding": "UTILS_SERVICE",
-      "service": "goldshore-utils"
+      "id": "ef85567a77364f87809047ac1aff950c"
     }
   ],
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application",
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "none"
   },
   "d1_databases": [
     {
@@ -55,19 +36,40 @@
       "migrations_dir": "migrations"
     }
   ],
-  "send_email": [
-    {
-      "name": "SEND_EMAIL"
-    }
-  ],
   "routes": [
     {
-      "pattern": "armsway.com/*",
-      "zone_name": "armsway.com"
+      "pattern": "armsway.com",
+      "custom_domain": true
     },
     {
-      "pattern": "www.armsway.com/*",
-      "zone_name": "armsway.com"
+      "pattern": "www.armsway.com",
+      "custom_domain": true
     }
-  ]
+  ],
+  "keep_vars": true,
+  "send_email": [
+    {
+      "name": "SEND_EMAIL",
+      "allowed_destination_addresses": [
+        "rob@armsway.com"
+      ]
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "INQUIRY_QUEUE",
+        "queue": "armsway-inquiries"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "armsway-inquiries",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 5,
+        "dead_letter_queue": "armsway-inquiries-dead-letter"
+      }
+    ]
+  }
 }

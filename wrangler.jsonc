@@ -11,7 +11,7 @@
   },
   "vars": {
     "ENV": "production",
-    "CONTACT_TO_EMAIL": "rob@armsway.com",
+    "CONTACT_TO_EMAIL": "goldshorelabs@gmail.com",
     "ACCESS_MODE": "selective"
   },
   "kv_namespaces": [
@@ -49,7 +49,7 @@
     {
       "name": "SEND_EMAIL",
       "allowed_destination_addresses": [
-        "rob@armsway.com"
+        "goldshorelabs@gmail.com"
       ]
     }
   ],

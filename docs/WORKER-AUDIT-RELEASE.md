@@ -9,3 +9,5 @@ The audit fix configures a dedicated `armsway-inquiries` queue, a consumer on th
 5. Validate persistence and delivery with a consented test inquiry after release. Monitor retry/dead-letter behavior; do not attach a consumer to the dead-letter queue automatically.
 
 No queues, email destinations, database schemas, or deployments were changed by this commit.
+
+Current main was merged without replacing its overlapping repairs. Its pinned Wrangler 4.146.0 requires Workers types ^5.20261001.1; the previous 5.20260903.1 pin made npm ci fail with ERESOLVE. The types pin now matches the required minimum, and clean npm ci plus the final Wrangler dry-run pass.
